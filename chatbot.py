@@ -19,6 +19,8 @@ to not run through the porgram aftrer every
 question we try to open up saved data if it
 doesnt work then it will run through
 '''
+
+'''
 try:
     #put x here when i change the json file so it doesnt open old pickle data or delete pickle file 
     with open("data.pickle", "rb") as f:
@@ -27,61 +29,62 @@ try:
     
     
 except:
-    words = []
-    labels = []
-    docs_x = []
-    docs_y =[]
-    
-    #docs x and y for each pattern y holds intent tag
-    
-    for intent in data["intents"]:
-        for pattern in intent["patterns"]:
-            wrds = nltk.word_tokenize(pattern)
-            #nkl tokenizes the words aka splits them up
-            words.extend(wrds)
-            docs_x.append(wrds)
-            docs_y.append(intent["tag"])
-            
-            #each entry in x x corrresponds to an entry in docs y x pattern intent in y
-            
-            if intent["tag"] not in labels:
-                labels.append(intent["tag"])
-                
-    words = [stemmer.stem(w.lower()) for w in words if  w !="?"]
-    words = sorted(list(set(words))) #takes out duplicats 
-    
-    labels = sorted(labels)
-    
-    #bag of words onehot encoded list the lenght of the words we have tellign if a word exist 
-    
-    training = []
-    output  = []
-    
-    out_empty = [0 for _ in range(len(labels))]
-    
-    
-    for x, doc in enumerate(docs_x):
-        bag = []
+'''
+words = []
+labels = []
+docs_x = []
+docs_y =[]
+
+#docs x and y for each pattern y holds intent tag
+
+for intent in data["intents"]:
+    for pattern in intent["patterns"]:
+        wrds = nltk.word_tokenize(pattern)
+        #nkl tokenizes the words aka splits them up
+        words.extend(wrds)
+        docs_x.append(wrds)
+        docs_y.append(intent["tag"])
         
-        wrds = [stemmer.stem(w) for w in doc]
-       #adding a 1 or a zero if the word exists or not 
-        for w in words:
-            if w in wrds:
-                bag.append(1)
-            else:
-                bag.append(0)
-        #looking through labels list finds the tag in the list and set the output to one in the row
-        output_row = out_empty[:]
-        output_row[labels.index(docs_y[x])] = 1
-        #two list traingni list and outputs in zeros and ones
-        training.append(bag)
-        output.append(output_row)
+        #each entry in x x corrresponds to an entry in docs y x pattern intent in y
         
-    training = numpy.array(training)
-    output = numpy.array(output)
+        if intent["tag"] not in labels:
+            labels.append(intent["tag"])
+            
+words = [stemmer.stem(w.lower()) for w in words if  w !="?"]
+words = sorted(list(set(words))) #takes out duplicats 
+
+labels = sorted(labels)
+
+#bag of words onehot encoded list the lenght of the words we have tellign if a word exist 
+
+training = []
+output  = []
+
+out_empty = [0 for _ in range(len(labels))]
+
+
+for x, doc in enumerate(docs_x):
+    bag = []
     
-    with open("data.pickle", "wb") as f:
-        pickle.dump((words, labels, training, output), f)
+    wrds = [stemmer.stem(w) for w in doc]
+   #adding a 1 or a zero if the word exists or not 
+    for w in words:
+        if w in wrds:
+            bag.append(1)
+        else:
+            bag.append(0)
+    #looking through labels list finds the tag in the list and set the output to one in the row
+    output_row = out_empty[:]
+    output_row[labels.index(docs_y[x])] = 1
+    #two list traingni list and outputs in zeros and ones
+    training.append(bag)
+    output.append(output_row)
+    
+training = numpy.array(training)
+output = numpy.array(output)
+
+with open("data.pickle", "wb") as f:
+    pickle.dump((words, labels, training, output), f)
 
 tensorflow.compat.v1.reset_default_graph()
 
@@ -95,13 +98,14 @@ net = tflearn.regression(net)
 
 #to train the model DNN deep neural network an ANN with multipple hidden lauers
 model = tflearn.DNN(net)
-
+'''
 try:
     model.load("model.tflearn")
-except:     
+except:  
+'''
     #epoch is the amount of time it will see the same data
-    model.fit(training, output, n_epoch=1000, batch_size=8, show_metric=True)
-    model.save("model.tflearn")
+model.fit(training, output, n_epoch=1000, batch_size=8, show_metric=True)
+model.save("model.tflearn")
 
 
 def bag_of_words(s, words):
